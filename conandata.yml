@@ -1,0 +1,12 @@
+sources:
+  "2.23":
+    sha256: f39f068ce7d749608ff15182b7da28627dd129eaba2687e28bec876d26135629
+    url: https://ftp.gnu.org/gnu/libc/glibc-2.23.tar.bz2
+  "2.33":
+    sha256: 4d7aa859d9152a4b243821eb604c0f1fee14c10d6341c2b9628d454cddd0f22e
+    url: https://ftp.gnu.org/gnu/libc/glibc-2.33.tar.bz2
+
+patches:
+  "2.23":
+    - patch_file: "patches/semver.patch"
+      base_path: "source_subfolder"
