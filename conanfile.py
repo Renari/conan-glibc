@@ -10,7 +10,7 @@ class GlibcConan(ConanFile):
     topics = ("conan", "glibc", "utilities", "toolchain")
     url = "https://github.com/Renari/conan-glibc"
     homepage = "https://www.gnu.org/software/libc/"
-    license = "?"
+    license = "LGPL-2.1-only"
     exports_sources = ["patches/*"]
     settings = "os", "arch", "compiler", "build_type"
     options = {"shared": [True, False], "fPIC": [True, False], "target": "ANY"}
