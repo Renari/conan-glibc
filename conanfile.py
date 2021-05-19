@@ -40,7 +40,7 @@ class GlibcConan(ConanFile):
     def build(self):
         self._patch_sources()
         tools.mkdir(self._build_subfolder)
-        condigure_dir = os.path.abspath(os.path.join(self.source_folder, self._source_subfolder))
+        configure_dir = os.path.abspath(os.path.join(self.source_folder, self._source_subfolder))
 
         with tools.chdir(self._build_subfolder):
             env_build = AutoToolsBuildEnvironment(self)
@@ -48,7 +48,7 @@ class GlibcConan(ConanFile):
                 "--disable-werror",
             ], vars={
                 "MAKE": self.deps_env_info["make"].CONAN_MAKE_PROGRAM
-            }, configure_dir=condigure_dir, target=self.options.target)
+            }, configure_dir=configure_dir, target=self.options.target)
             env_build.make()
             env_build.install()
 
