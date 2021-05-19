@@ -1,16 +1,17 @@
 from conans import ConanFile, AutoToolsBuildEnvironment, tools
+from conans.model.version import Version
 import os
 
 
 class GlibcConan(ConanFile):
     name = "glibc"
-    version = "2.33"
     description = "The GNU C Library project provides the core libraries for the GNU system and GNU/Linux systems, " \
                   "as well as many other systems that use Linux as the kernel. "
     topics = ("conan", "glibc", "utilities", "toolchain")
     url = "https://github.com/Renari/conan-glibc"
     homepage = "https://www.gnu.org/software/libc/"
     license = "?"
+    exports_sources = ["patches/*"]
     settings = "os", "arch", "compiler", "build_type"
     options = {"shared": [True, False], "fPIC": [True, False], "target": "ANY"}
     default_options = {"shared": False, "fPIC": True, "target": None}
@@ -21,24 +22,33 @@ class GlibcConan(ConanFile):
         if self.settings.os == 'Windows':
             del self.options.fPIC
 
+    def build_requirements(self):
+        self.build_requires("make/4.2.1")
+
     def requirements(self):
-        self.requires('bison/3.7.1')
+        self.requires("bison/3.7.1")
+
+    def _patch_sources(self):
+        for patch in self.conan_data.get("patches", {}).get(self.version, []):
+            tools.patch(**patch)
 
     def source(self):
-        source_url = "https://ftp.gnu.org/gnu/libc/glibc-%s.tar.bz2" % self.version
-        tools.get(source_url, sha256="4d7aa859d9152a4b243821eb604c0f1fee14c10d6341c2b9628d454cddd0f22e")
+        tools.get(**self.conan_data["sources"][self.version])
         extracted_dir = self.name + "-" + self.version
         os.rename(extracted_dir, self._source_subfolder)
 
     def build(self):
+        self._patch_sources()
         tools.mkdir(self._build_subfolder)
         condigure_dir = os.path.abspath(os.path.join(self.source_folder, self._source_subfolder))
 
         with tools.chdir(self._build_subfolder):
             env_build = AutoToolsBuildEnvironment(self)
             env_build.configure(args=[
-                "--disable-werror"
-            ], configure_dir=condigure_dir, target=self.options.target)
+                "--disable-werror",
+            ], vars={
+                "MAKE": self.deps_env_info["make"].CONAN_MAKE_PROGRAM
+            }, configure_dir=condigure_dir, target=self.options.target)
             env_build.make()
             env_build.install()
 
